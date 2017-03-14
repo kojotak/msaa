@@ -1,4 +1,4 @@
-package cz.kojotak.sreac.cfg;
+package cz.kojotak.msaa.cfg;
 
 import java.net.URISyntaxException;
 
