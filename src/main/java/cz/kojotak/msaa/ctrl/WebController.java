@@ -7,6 +7,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -61,17 +64,25 @@ public class WebController {
 		return REDIRECT + HOME;
 	}
 	
-	@GetMapping("projects")
+	@GetMapping(value = "projects")
 	public String projects(Model model, HttpServletRequest request){
 		Account account = (Account)request.getSession().getAttribute(SESSION);
 		if(account==null){
 			return REDIRECT + HOME;
 		}
-		List<Project> projects = remote.fetchProjects(account);
-		logger.info("fetched " + projects.size() + " projects");
-		model.addAttribute("projects", projects);
 		model.addAttribute("account", account);
 		return PROJECTS;
+	}
+	
+	@GetMapping(value = "projects", consumes = {MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<List<Project>> rest(Model model, HttpServletRequest request){
+		Account account = (Account)request.getSession().getAttribute(SESSION);
+		if(account==null){
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
+		List<Project> projects = remote.fetchProjects(account);
+		logger.info("fetched " + projects.size() + " projects");
+		return new ResponseEntity<List<Project>>(projects, HttpStatus.OK);
 	}
 
 }
